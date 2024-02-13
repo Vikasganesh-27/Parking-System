@@ -1,0 +1,177 @@
+#include <LiquidCrystal.h>
+#include <Servo.h>
+
+Servo myServo1, myServo2, myServo3;
+
+int servoPin1 = A0;
+int servoPin2 = A1;
+int servoPin3 = A2;
+
+int tp1 = 3;
+int ep1 = 2;
+int tp2 = 5;
+int ep2 = 4;
+int tp3 = 7;
+int ep3 = 6; 
+
+int rs = 8;
+int en = 9;
+int d4 = 10;
+int d5 = 11;
+int d6 = 12;
+int d7 = 13;
+
+LiquidCrystal lcd(rs,en,d4,d5,d6,d7);
+
+long d1,d2,d3;
+long duration;
+
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(tp1, OUTPUT);
+  pinMode(ep1, INPUT);
+  pinMode(tp2, OUTPUT);
+  pinMode(ep2, INPUT);
+  pinMode(tp3, OUTPUT);
+  pinMode(ep3, INPUT);
+  
+  myServo1.attach(servoPin1);
+  myServo2.attach(servoPin2);
+  myServo3.attach(servoPin3);
+  
+  lcd.begin(16,2);
+  
+}
+
+void loop()
+{
+  myServo1.write(0);
+  myServo2.write(0);
+  myServo3.write(0);
+  lcd.setCursor(0,0);
+  lcd.print("Welcome");
+  delay(1000);
+  lcd.setCursor(0,1);
+  lcd.print("Checking slots..");
+  delay(3000);
+  lcd.clear();
+  
+  d1 = (checkDistance(tp1,ep1)*0.034)/2;
+  d2 = (checkDistance(tp2,ep2)*0.034)/2;
+  d3 = (checkDistance(tp3,ep3)*0.034)/2;
+  
+  Serial.print("Distance of sensor 1 in cms : ");
+  Serial.println(d1);
+  Serial.print("Distance of sensor 2 in cms: ");
+  Serial.println(d2);
+  Serial.print("Distance of sensor 3 in cms : ");
+  Serial.println(d3);
+  
+ if((d1>100)&&(d2<100)&&(d3<100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 1 free");
+   myServo1.write(90);
+   delay(3000);
+   myServo1.write(0);
+   lcd.clear();
+ }
+  
+ if((d2>100)&&(d1<100)&&(d3<100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 2 free");
+   myServo2.write(90);
+   delay(3000);
+   myServo2.write(0);
+   lcd.clear();
+ }
+  
+ if((d3>100)&&(d2<100)&&(d1<100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 3 free");
+   myServo3.write(90);
+   delay(3000);
+   myServo3.write(0);
+   lcd.clear();
+ }
+  
+ if((d1>100)&&(d2>100)&&(d3<100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot1&2 are free");
+   myServo1.write(90);
+   myServo2.write(90);
+   delay(3000);
+   myServo1.write(0);
+   myServo2.write(0);
+   lcd.clear();
+ }
+  
+ if((d1<100)&&(d2>100)&&(d3>100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 2&3 free");
+   myServo2.write(90);
+   myServo3.write(90);
+   delay(3000);
+   myServo2.write(0);
+   myServo3.write(0);
+   lcd.clear();
+ }
+  
+ if((d1>100)&&(d2<100)&&(d3>100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 1&3 free");
+   myServo1.write(90);
+   myServo3.write(90);
+   delay(2000);
+   myServo1.write(0);
+   myServo3.write(0);
+   lcd.clear();
+ }
+  
+ if((d1>100)&&(d2>100)&&(d3>100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("Slot 1&2&3 free");
+   myServo1.write(90);
+   myServo2.write(90);
+   myServo3.write(90);
+   delay(2000);
+   myServo1.write(0);
+   myServo2.write(0);
+   myServo3.write(0);
+   lcd.clear();
+ }
+  
+ if((d1<100)&&(d2<100)&&(d3<100))
+ {
+   lcd.setCursor(0,0);
+   lcd.print("No slots free");
+   myServo1.write(0);
+   myServo2.write(0);
+   myServo3.write(0);
+   delay(2000);
+   lcd.clear();
+ }
+  
+ delay(2000);
+  
+}
+
+long checkDistance(int trigPin, int echoPin)
+{
+  digitalWrite(trigPin, LOW);
+  
+  digitalWrite(trigPin, HIGH);
+  
+  digitalWrite(trigPin, LOW);
+  
+  duration = pulseIn(echoPin, HIGH);
+  
+}
